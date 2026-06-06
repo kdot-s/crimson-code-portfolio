@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Github, Volume2, Eye, BadgeCheck } from "lucide-react";
+import { useState, useEffect } from "react";
 import bg from "@/assets/sunset-bg.jpg";
 import avatar from "@/assets/avatar.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "osamason [@osa]" },
+      { title: "kdot [@kdot]" },
       { name: "description", content: "good gorilla tag dev — ires, fays, ryn, mp5, s4eepy" },
     ],
   }),
@@ -22,7 +23,61 @@ const stats: Stat[] = [
   { label: "photon", value: 80 },
 ];
 
+const bioLines = [
+  "good gorilla tag dev",
+  "ires, fays, ryn, mp5, s4eepy",
+];
+
+function useTypewriter(lines: string[], speed = 45, lineDelay = 400) {
+  const [typedLines, setTypedLines] = useState<string[]>([]);
+  const [currentLine, setCurrentLine] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentLine >= lines.length) return;
+
+    const line = lines[currentLine];
+    if (charIndex < line.length) {
+      const t = setTimeout(() => {
+        setTypedLines((prev) => {
+          const next = [...prev];
+          next[currentLine] = line.slice(0, charIndex + 1);
+          return next;
+        });
+        setCharIndex(charIndex + 1);
+      }, speed);
+      return () => clearTimeout(t);
+    } else {
+      const t = setTimeout(() => {
+        setCurrentLine(currentLine + 1);
+        setCharIndex(0);
+      }, lineDelay);
+      return () => clearTimeout(t);
+    }
+  }, [charIndex, currentLine, lines, speed, lineDelay]);
+
+  return typedLines;
+}
+
+function useViewCounter() {
+  const [views, setViews] = useState(0);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("kdot_views");
+    let count = stored ? parseInt(stored, 10) : 0;
+    if (Number.isNaN(count)) count = 0;
+    count += 1;
+    localStorage.setItem("kdot_views", String(count));
+    setViews(count);
+  }, []);
+
+  return views;
+}
+
 function Index() {
+  const typedLines = useTypewriter(bioLines);
+  const views = useViewCounter();
+
   return (
     <main
       className="relative min-h-screen w-full overflow-hidden bg-cover bg-center font-mono"
@@ -38,25 +93,31 @@ function Index() {
             <div className="flex items-center gap-4">
               <img
                 src={avatar}
-                alt="osamason avatar"
+                alt="kdot avatar"
                 width={64}
                 height={64}
                 className="h-16 w-16 rounded-full object-cover ring-1 ring-white/15"
               />
               <div className="min-w-0">
                 <h1 className="flex items-center gap-2 text-2xl tracking-wide text-white">
-                  osamason <span className="text-white/60">[@osa]</span>
+                  kdot <span className="text-white/60">[@kdot]</span>
                   <BadgeCheck className="h-4 w-4 text-white/70" aria-label="verified" />
                 </h1>
                 <p className="mt-1 text-xs text-white/40">uid: 730921184</p>
               </div>
             </div>
 
-            {/* Bio */}
-            <p className="mt-6 text-sm leading-relaxed text-white/80">
-              good gorilla tag dev<br />
-              ires, fays, ryn, mp5, s4eepy
-            </p>
+            {/* Bio — typewriter */}
+            <div className="mt-6 text-sm leading-relaxed text-white/80 min-h-[3rem]">
+              {typedLines.map((line, i) => (
+                <div key={i}>
+                  {line}
+                  {i === typedLines.length - 1 && i < bioLines.length && (
+                    <span className="animate-pulse">|</span>
+                  )}
+                </div>
+              ))}
+            </div>
 
             {/* Stats grid */}
             <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4">
@@ -88,7 +149,7 @@ function Index() {
               </div>
               <div className="flex items-center gap-1.5 text-xs">
                 <Eye className="h-4 w-4" />
-                <span>5,418</span>
+                <span>{views.toLocaleString()}</span>
               </div>
             </div>
           </div>
