@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Github, Volume2, Eye, BadgeCheck } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import bg from "@/assets/sunset-bg.jpg";
 import avatar from "@/assets/avatar.jpg";
+import song from "@/assets/whotfisu.mp3.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -77,6 +78,33 @@ function useViewCounter() {
 function Index() {
   const typedLines = useTypewriter(bioLines);
   const views = useViewCounter();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [volume, setVolume] = useState(25);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume / 100;
+  }, [volume]);
+
+  useEffect(() => {
+    const start = () => {
+      if (!audioRef.current || started) return;
+      audioRef.current.volume = volume / 100;
+      audioRef.current.play().then(() => setStarted(true)).catch(() => {});
+    };
+    audioRef.current?.play().then(() => setStarted(true)).catch(() => {
+      window.addEventListener("click", start, { once: true });
+      window.addEventListener("keydown", start, { once: true });
+      window.addEventListener("touchstart", start, { once: true });
+    });
+    return () => {
+      window.removeEventListener("click", start);
+      window.removeEventListener("keydown", start);
+      window.removeEventListener("touchstart", start);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   return (
     <main
@@ -142,10 +170,12 @@ function Index() {
                   type="range"
                   min={0}
                   max={100}
-                  defaultValue={25}
+                  value={volume}
+                  onChange={(e) => setVolume(Number(e.target.value))}
                   className="h-1 w-24 cursor-pointer appearance-none rounded-full bg-white/20 accent-white"
                   aria-label="volume"
                 />
+                <audio ref={audioRef} src={song.url} loop preload="auto" />
               </div>
               <div className="flex items-center gap-1.5 text-xs">
                 <Eye className="h-4 w-4" />
