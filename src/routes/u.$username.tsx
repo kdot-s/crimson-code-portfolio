@@ -123,7 +123,7 @@ function ProfilePage() {
     if (cardRef.current) cardRef.current.style.transform = "";
   }
 
-  const badges = profile.user_badges ?? [];
+  const badges: ProfileFull["user_badges"] = profile.user_badges ?? [];
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-cover bg-center font-mono"
