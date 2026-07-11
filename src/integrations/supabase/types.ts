@@ -14,16 +14,189 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      badges: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          is_custom: boolean
+          name: string
+          slug: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon: string
+          id?: string
+          is_custom?: boolean
+          name: string
+          slug: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_custom?: boolean
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          accent_color: string | null
+          avatar_url: string | null
+          background_url: string | null
+          bio: string | null
+          card_opacity: number | null
+          created_at: string
+          description: string | null
+          display_name: string | null
+          id: string
+          is_premium: boolean
+          song_url: string | null
+          updated_at: string
+          username: string
+          views: number
+        }
+        Insert: {
+          accent_color?: string | null
+          avatar_url?: string | null
+          background_url?: string | null
+          bio?: string | null
+          card_opacity?: number | null
+          created_at?: string
+          description?: string | null
+          display_name?: string | null
+          id: string
+          is_premium?: boolean
+          song_url?: string | null
+          updated_at?: string
+          username: string
+          views?: number
+        }
+        Update: {
+          accent_color?: string | null
+          avatar_url?: string | null
+          background_url?: string | null
+          bio?: string | null
+          card_opacity?: number | null
+          created_at?: string
+          description?: string | null
+          display_name?: string | null
+          id?: string
+          is_premium?: boolean
+          song_url?: string | null
+          updated_at?: string
+          username?: string
+          views?: number
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          granted_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          granted_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          granted_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_create_badge: {
+        Args: {
+          _color: string
+          _description: string
+          _icon: string
+          _name: string
+          _slug: string
+        }
+        Returns: string
+      }
+      admin_delete_badge: { Args: { _badge_id: string }; Returns: undefined }
+      admin_grant_badge: {
+        Args: { _badge_id: string; _target_user: string }
+        Returns: undefined
+      }
+      admin_grant_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _target_user: string
+        }
+        Returns: undefined
+      }
+      admin_revoke_badge: {
+        Args: { _badge_id: string; _target_user: string }
+        Returns: undefined
+      }
+      admin_revoke_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _target_user: string
+        }
+        Returns: undefined
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      increment_profile_views: { Args: { _username: string }; Returns: number }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +323,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
